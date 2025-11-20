@@ -103,7 +103,19 @@ def bisection(
             - Liczba wykonanych iteracji.
         Jeżeli dane wejściowe są niepoprawne funkcja zwraca `None`.
     """
-    pass
+    if not isinstance(a, b, f, epsilon, max_iter):
+        return None
+    if f(a)*f(b) >= 0:
+        return None
+    for _ in range(max_iter):
+        c = (a+b)/2
+        if abs(f(c)) < epsilon or abs((b-a)/2) < epsilon:
+            return c
+        if f(a)*f(c) < 0:
+            b = c
+        else:
+            a = c
+    return c
 
 
 def secant(
@@ -130,7 +142,12 @@ def secant(
             - Liczba wykonanych iteracji.
         Jeżeli dane wejściowe są niepoprawne funkcja zwraca `None`.
     """
-    pass
+    if not isinstance(a,b,f,epsilon,max_iters)
+    if f(a)*f(b) >= 0:
+        return None
+    for _ in range(max_iters):
+        b = a - f(a)*(x1-x0)/(f(x1))
+
 
 
 def difference_quotient(
