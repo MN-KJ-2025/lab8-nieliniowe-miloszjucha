@@ -103,19 +103,24 @@ def bisection(
             - Liczba wykonanych iteracji.
         Jeżeli dane wejściowe są niepoprawne funkcja zwraca `None`.
     """
-    if not isinstance(a, b, f, epsilon, max_iter):
+    if not isinstance(a, (int, float)) or not isinstance(b, (int,float)) or not callable(f) \
+    or not isinstance(epsilon, float) or not isinstance(max_iter, int):
+        return None
+    
+    if a >= b or epsilon <= 0 or max_iter <= 0:
         return None
     if f(a)*f(b) >= 0:
         return None
-    for _ in range(max_iter):
+    
+    for i in range(1,max_iter+1):
         c = (a+b)/2
         if abs(f(c)) < epsilon or abs((b-a)/2) < epsilon:
-            return c
+            return c, i
         if f(a)*f(c) < 0:
             b = c
         else:
             a = c
-    return c
+    return c, max_iter
 
 
 def secant(
@@ -140,13 +145,32 @@ def secant(
         (tuple[float, int]):
             - Aproksymowane rozwiązanie,
             - Liczba wykonanych iteracji.
-        Jeżeli dane wejściowe są niepoprawne funkcja zwraca `None`.
+        Jeżeli dane wejściowe są niepoprawne funkcja zwraca None.
     """
-    if not isinstance(a,b,f,epsilon,max_iters)
-    if f(a)*f(b) >= 0:
+    if not isinstance(a, (int, float)) or not isinstance(b, (int, float)) or not isinstance(epsilon, float) \
+    or not isinstance(max_iters, int) or not callable(f) or max_iters <=0 or f(a)*f(b) >=0:
         return None
-    for _ in range(max_iters):
-        b = a - f(a)*(x1-x0)/(f(x1))
+    tga = (f(b) - f(a)) / (b - a)
+    b0 = f(b) - tga * b
+    x0 = -b0 / tga
+    count = 1
+    while count < max_iters:
+        if abs(f(x0)) < epsilon:
+            return x0, count
+        else:
+            if f(x0) * f(a) < 0:
+                b = x0
+                tga = (f(b) - f(a)) / (b - a)
+                b0 = f(b) - tga * b
+                x0 = -b0 / tga
+            else:
+                a = x0
+                tga = (f(b) - f(a)) / (b - a)
+                b0 = f(b) - tga * b
+                x0 = -b0 / tga
+        count += 1
+    return x0, count
+
 
 
 
@@ -167,7 +191,11 @@ def difference_quotient(
         (float): Wartość ilorazu różnicowego.
         Jeżeli dane wejściowe są niepoprawne funkcja zwraca `None`.
     """
-    pass
+    if not callable(f) or not isinstance(x, (int, float)) or not isinstance(h, (int, float)):
+        return None
+    if h == 0:
+        return None
+    return (f(x+h)-f(x))/h
 
 
 def newton(
@@ -199,4 +227,29 @@ def newton(
             - Liczba wykonanych iteracji.
         Jeżeli dane wejściowe są niepoprawne funkcja zwraca `None`.
     """
-    pass
+    if not callable(f) or not callable(df) or not callable(ddf) or not isinstance(a, (int,float)) \
+    or not isinstance(b, (int,float)) or not isinstance(epsilon, float) or not isinstance(max_iter,int) \
+    or max_iter <= 0 or f(a)*f(b) > 0:
+        return None
+    
+    if f(a)*ddfunc(a) > 0:
+        x = a
+    elif f(b)*ddfunc(b) > 0:
+        x = b
+    else:
+        x = (a+b)/2
+    h = 1e-8
+    for i in range(1, max_iter+1):
+        dq = difference_quotient(f,x,h)
+        if dq is None or dq == 0:
+            return None
+        x0 = x - f(x) / dq
+
+        if abs(f(x0)) <= epsilon:
+            return x0, i
+        x = x0
+    return x, max_iter
+    
+
+
+    
